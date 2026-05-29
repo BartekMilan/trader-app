@@ -11,7 +11,7 @@ import { scheduleOnRN } from "react-native-worklets";
 import { BottomBar } from "../components/BottomBar";
 import { Pager } from "../components/Pager";
 import { SCREEN_WIDTH } from "../constants";
-import { FeedScreen } from "../screens/FeedScreen";
+import { HomeScreen as HomeTabScreen } from "../screens/HomeScreen";
 import { MarketScreen } from "../screens/MarketScreen";
 import { PortfolioScreen } from "../screens/PortfolioScreen";
 import { PAGE_BG_COLORS, PAGE_INPUT_RANGE } from "../theme";
@@ -56,7 +56,7 @@ export default function HomeScreen() {
   return (
     <Animated.View style={[styles.fill, backgroundStyle]}>
       <Pager ref={pagerRef} progress={progress}>
-        <FeedScreen />
+        <HomeTabScreen />
         <MarketScreen />
         <PortfolioScreen />
       </Pager>

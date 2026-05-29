@@ -13,6 +13,7 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { HomeIcon } from './home/HomeIcon';
 import {
   PAGE_COUNT,
   PAGES,
@@ -47,8 +48,22 @@ function Tab({ id, index, progress, onPress }: TabProps) {
     };
   });
 
+  const iconStyle = useAnimatedStyle(() => {
+    const focus = 1 - Math.min(1, Math.abs(progress.value - index));
+
+    return {
+      opacity: interpolate(focus, [0, 1], [0.55, 1]),
+      transform: [{ scale: interpolate(focus, [0, 1], [TAB_SCALE_INACTIVE, TAB_SCALE_ACTIVE]) }],
+    };
+  });
+
   return (
     <Pressable style={styles.tab} onPress={onPress}>
+      {id === 'home' ? (
+        <Animated.View style={[styles.tabIconWrap, iconStyle]}>
+          <HomeIcon />
+        </Animated.View>
+      ) : null}
       <Animated.Text style={[styles.tabLabel, labelStyle]}>{id}</Animated.Text>
     </Pressable>
   );
@@ -129,7 +144,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
+    paddingVertical: 10,
+    gap: 4,
+  },
+  tabIconWrap: {
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabLabel: {
     fontWeight: '600',
