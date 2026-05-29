@@ -11,34 +11,23 @@ import Animated, {
   SharedValue,
   useAnimatedStyle,
   useSharedValue,
-  withClamp,
-  withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  MAX_PROGRESS,
   PAGE_COUNT,
   PAGES,
   PAGE_INPUT_RANGE,
-  PAGER_SPRING_DAMPING,
-  PAGER_SPRING_MASS,
-  PAGER_SPRING_STIFFNESS,
   TAB_LABEL_ACTIVE,
   TAB_LABEL_INACTIVE,
   TAB_SCALE_ACTIVE,
   TAB_SCALE_INACTIVE,
 } from '../theme';
 
-const PAGER_SPRING_CONFIG = {
-  damping: PAGER_SPRING_DAMPING,
-  stiffness: PAGER_SPRING_STIFFNESS,
-  mass: PAGER_SPRING_MASS,
-};
-
 const INDICATOR_INSET = 8;
 
 type BottomBarProps = {
   progress: SharedValue<number>;
+  onTabPress: (index: number) => void;
 };
 
 type TabProps = {
@@ -65,7 +54,7 @@ function Tab({ id, index, progress, onPress }: TabProps) {
   );
 }
 
-export function BottomBar({ progress }: BottomBarProps) {
+export function BottomBar({ progress, onTabPress }: BottomBarProps) {
   const insets = useSafeAreaInsets();
   const barWidth = useSharedValue(0);
 
@@ -108,12 +97,7 @@ export function BottomBar({ progress }: BottomBarProps) {
             id={id}
             index={index}
             progress={progress}
-            onPress={() => {
-              progress.value = withClamp(
-                { min: 0, max: MAX_PROGRESS },
-                withSpring(index, PAGER_SPRING_CONFIG),
-              );
-            }}
+            onPress={() => onTabPress(index)}
           />
         ))}
       </View>

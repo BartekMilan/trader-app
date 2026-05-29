@@ -2,9 +2,8 @@
 export const PAGES = ['feed', 'market', 'portfolio'] as const;
 export type PageId = (typeof PAGES)[number];
 
-// `progress` (the Master Shared Value) ranges over [0, MAX_PROGRESS].
-export const PAGE_COUNT = PAGES.length;       // 3
-export const MAX_PROGRESS = PAGE_COUNT - 1;   // 2
+// `progress` (the Master Shared Value) ranges over [0, PAGE_COUNT - 1].
+export const PAGE_COUNT = PAGES.length; // 3
 
 // Input range for every progress-driven interpolation: [0, 1, 2].
 export const PAGE_INPUT_RANGE: number[] = PAGES.map((_, i) => i);
@@ -12,16 +11,6 @@ export const PAGE_INPUT_RANGE: number[] = PAGES.map((_, i) => i);
 // Background color per page, index-aligned to PAGES.
 // 0 feed -> blue, 1 market -> dark gray, 2 portfolio -> green.
 export const PAGE_BG_COLORS: string[] = ['#1E40AF', '#1F2937', '#047857'];
-
-// Step 5 — pager spring / velocity tuning.
-export const VELOCITY_PROJECTION_K = 8;
-export const PAGER_SPRING_DAMPING = 28;
-export const PAGER_SPRING_STIFFNESS = 280;
-export const PAGER_SPRING_MASS = 0.8;
-
-// Drag overscroll resistance at the first/last page.
-export const RUBBER_BAND_RESISTANCE = 0.35;
-export const RUBBER_BAND_MAX_OVERSCROLL = 0.2;
 
 // Bottom-bar tab label interpolation endpoints.
 export const TAB_LABEL_INACTIVE = 'rgba(255,255,255,0.55)';
