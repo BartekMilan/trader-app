@@ -5,17 +5,43 @@ import Animated, {
   SharedValue,
   useAnimatedStyle,
   useSharedValue,
+  withClamp,
   withSpring,
 } from 'react-native-reanimated';
 import { SCREEN_WIDTH } from '../constants';
-import { MAX_PROGRESS, PAGE_COUNT } from '../theme';
+import {
+  MAX_PROGRESS,
+  PAGE_COUNT,
+  PAGER_SPRING_DAMPING,
+  PAGER_SPRING_MASS,
+  PAGER_SPRING_STIFFNESS,
+  RUBBER_BAND_MAX_OVERSCROLL,
+  RUBBER_BAND_RESISTANCE,
+  VELOCITY_PROJECTION_K,
+} from '../theme';
 
-// Velocity projection divisor — lower = more flick momentum.
-const VELOCITY_PROJECTION_K = 10;
+const PAGER_SPRING_CONFIG = {
+  damping: PAGER_SPRING_DAMPING,
+  stiffness: PAGER_SPRING_STIFFNESS,
+  mass: PAGER_SPRING_MASS,
+};
 
 function clamp(value: number, min: number, max: number) {
   'worklet';
   return Math.min(Math.max(value, min), max);
+}
+
+function applyRubberBand(value: number, min: number, max: number) {
+  'worklet';
+  if (value >= min && value <= max) {
+    return value;
+  }
+  if (value < min) {
+    const overscroll = min - value;
+    return min - Math.min(overscroll * RUBBER_BAND_RESISTANCE, RUBBER_BAND_MAX_OVERSCROLL);
+  }
+  const overscroll = value - max;
+  return max + Math.min(overscroll * RUBBER_BAND_RESISTANCE, RUBBER_BAND_MAX_OVERSCROLL);
 }
 
 type PagerProps = {
@@ -35,7 +61,7 @@ export function Pager({ progress, children }: PagerProps) {
           startProgress.value = progress.value;
         })
         .onUpdate((e) => {
-          progress.value = clamp(
+          progress.value = applyRubberBand(
             startProgress.value + -e.translationX / SCREEN_WIDTH,
             0,
             MAX_PROGRESS,
@@ -45,7 +71,10 @@ export function Pager({ progress, children }: PagerProps) {
           const projected =
             progress.value - e.velocityX / (SCREEN_WIDTH * VELOCITY_PROJECTION_K);
           const target = clamp(Math.round(projected), 0, MAX_PROGRESS);
-          progress.value = withSpring(target);
+          progress.value = withClamp(
+            { min: 0, max: MAX_PROGRESS },
+            withSpring(target, PAGER_SPRING_CONFIG),
+          );
         }),
     [progress, startProgress],
   );

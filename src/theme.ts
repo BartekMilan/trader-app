@@ -12,3 +12,19 @@ export const PAGE_INPUT_RANGE: number[] = PAGES.map((_, i) => i);
 // Background color per page, index-aligned to PAGES.
 // 0 feed -> blue, 1 market -> dark gray, 2 portfolio -> green.
 export const PAGE_BG_COLORS: string[] = ['#1E40AF', '#1F2937', '#047857'];
+
+// Step 5 — pager spring / velocity tuning.
+export const VELOCITY_PROJECTION_K = 8;
+export const PAGER_SPRING_DAMPING = 28;
+export const PAGER_SPRING_STIFFNESS = 280;
+export const PAGER_SPRING_MASS = 0.8;
+
+// Drag overscroll resistance at the first/last page.
+export const RUBBER_BAND_RESISTANCE = 0.35;
+export const RUBBER_BAND_MAX_OVERSCROLL = 0.2;
+
+// Bottom-bar tab label interpolation endpoints.
+export const TAB_LABEL_INACTIVE = 'rgba(255,255,255,0.55)';
+export const TAB_LABEL_ACTIVE = '#FFFFFF';
+export const TAB_SCALE_INACTIVE = 0.92;
+export const TAB_SCALE_ACTIVE = 1;
