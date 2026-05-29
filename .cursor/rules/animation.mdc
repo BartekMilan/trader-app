@@ -1,0 +1,11 @@
+---
+description: RN animation hard rules
+alwaysApply: true
+---
+
+- Reanimated 4 + New Architecture. NEVER use runOnJS — use scheduleOnRN from react-native-worklets.
+- Babel: react-native-worklets/plugin must be LAST. Restart Metro with `expo start -c` after Babel edits.
+- Gesture Handler v2 builder API; wrap every gesture in useMemo. GestureHandlerRootView is mandatory.
+- Do NOT add 'worklet'; to inline gesture/animation callbacks (Babel auto-workletizes).
+- `progress` SharedValue is the single source of truth. Never read .value on the JS thread during render.
+- Make ONLY the changes for the current step. Do not touch files outside the step's stated file list.
