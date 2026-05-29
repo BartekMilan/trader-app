@@ -28,3 +28,10 @@ export const TAB_LABEL_INACTIVE = 'rgba(255,255,255,0.55)';
 export const TAB_LABEL_ACTIVE = '#FFFFFF';
 export const TAB_SCALE_INACTIVE = 0.92;
 export const TAB_SCALE_ACTIVE = 1;
+
+// Market screen — trend colors & glass surfaces (transparent over pager background).
+export const MARKET_POSITIVE = '#4ADE80';
+export const MARKET_NEGATIVE = '#F87171';
+export const MARKET_GLASS_BG = 'rgba(255,255,255,0.08)';
+export const MARKET_GLASS_BORDER = 'rgba(255,255,255,0.1)';
+export const MARKET_TEXT_SECONDARY = 'rgba(255,255,255,0.55)';
