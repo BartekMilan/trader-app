@@ -44,8 +44,8 @@ export const Pager = forwardRef<Animated.ScrollView, PagerProps>(
 );
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: 'transparent' },
   // width per page = screen width so pagingEnabled snaps one page per swipe.
   // Pages stretch to full height via the ScrollView content's default cross-axis stretch.
-  page: { width: SCREEN_WIDTH },
+  page: { width: SCREEN_WIDTH, backgroundColor: 'transparent' },
 });

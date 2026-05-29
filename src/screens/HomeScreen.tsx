@@ -6,12 +6,11 @@ import { PortfolioOverviewCard } from '../components/home/PortfolioOverviewCard'
 import { SearchBar } from '../components/home/SearchBar';
 import { StocksIdeaSection } from '../components/home/StocksIdeaSection';
 import { TodaysMarketGrid } from '../components/home/TodaysMarketGrid';
-
-const BOTTOM_BAR_ESTIMATE = 64;
+import { getBottomBarPadding } from '../components/BottomBar';
 
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const bottomPadding = BOTTOM_BAR_ESTIMATE + Math.max(insets.bottom, 12);
+  const bottomPadding = getBottomBarPadding(insets.bottom);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -37,6 +36,7 @@ const styles = StyleSheet.create({
   },
   scroll: {
     flex: 1,
+    backgroundColor: 'transparent',
   },
   scrollContent: {
     flexGrow: 1,

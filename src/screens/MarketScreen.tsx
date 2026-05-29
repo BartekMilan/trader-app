@@ -3,12 +3,11 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IndexCardsCarousel } from '../components/market/IndexCardsCarousel';
 import { MostActivesSection } from '../components/market/MostActivesSection';
-
-const BOTTOM_BAR_ESTIMATE = 64;
+import { getBottomBarPadding } from '../components/BottomBar';
 
 export function MarketScreen() {
   const insets = useSafeAreaInsets();
-  const bottomPadding = BOTTOM_BAR_ESTIMATE + Math.max(insets.bottom, 12);
+  const bottomPadding = getBottomBarPadding(insets.bottom);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>

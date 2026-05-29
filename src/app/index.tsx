@@ -2,19 +2,17 @@ import * as Haptics from "expo-haptics";
 import { useCallback, useRef } from "react";
 import { StyleSheet } from "react-native";
 import Animated, {
-  interpolateColor,
   useAnimatedReaction,
-  useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { BottomBar } from "../components/BottomBar";
+import { PageBackground } from "../components/PageBackground";
 import { Pager } from "../components/Pager";
 import { SCREEN_WIDTH } from "../constants";
 import { HomeScreen as HomeTabScreen } from "../screens/HomeScreen";
 import { MarketScreen } from "../screens/MarketScreen";
 import { PortfolioScreen } from "../screens/PortfolioScreen";
-import { PAGE_BG_COLORS, PAGE_INPUT_RANGE } from "../theme";
 
 function triggerSettleHaptic() {
   void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -42,19 +40,9 @@ export default function HomeScreen() {
     },
   );
 
-  // Background morphs continuously with `progress`. interpolateColor runs in a
-  // worklet on the UI thread -> React performs ZERO re-renders during the morph.
-  const backgroundStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      progress.value,
-      PAGE_INPUT_RANGE, // [0, 1, 2]
-      PAGE_BG_COLORS, // [blue, dark gray, green]
-      "LAB", // Oklab: perceptually uniform, smoothest morph
-    ),
-  }));
-
   return (
-    <Animated.View style={[styles.fill, backgroundStyle]}>
+    <Animated.View style={styles.fill}>
+      <PageBackground progress={progress} />
       <Pager ref={pagerRef} progress={progress}>
         <HomeTabScreen />
         <MarketScreen />
@@ -66,5 +54,6 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  fill: { flex: 1 },
+  // Fallback base if a child view is still opaque; matches home gradient bottom stop.
+  fill: { flex: 1, backgroundColor: "#080C14" },
 });

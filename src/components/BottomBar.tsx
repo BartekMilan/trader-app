@@ -1,30 +1,26 @@
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback } from 'react';
-import {
-  LayoutChangeEvent,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   interpolate,
   interpolateColor,
   SharedValue,
   useAnimatedStyle,
-  useSharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { HomeIcon } from './home/HomeIcon';
 import {
-  PAGE_COUNT,
   PAGES,
-  PAGE_INPUT_RANGE,
+  TAB_ACTIVE_PILL_BORDER,
+  TAB_ACTIVE_PILL_FILL,
+  TAB_ACTIVE_PILL_SHINE_BOTTOM,
+  TAB_ACTIVE_PILL_SHINE_TOP,
   TAB_LABEL_ACTIVE,
   TAB_LABEL_INACTIVE,
-  TAB_SCALE_ACTIVE,
-  TAB_SCALE_INACTIVE,
 } from '../theme';
+import { HomeIcon } from './home/HomeIcon';
 
-const INDICATOR_INSET = 8;
+export const BOTTOM_BAR_CONTENT_HEIGHT = 58;
 
 type BottomBarProps = {
   progress: SharedValue<number>;
@@ -39,12 +35,25 @@ type TabProps = {
 };
 
 function Tab({ id, index, progress, onPress }: TabProps) {
+  const pillStyle = useAnimatedStyle(() => {
+    const focus = 1 - Math.min(1, Math.abs(progress.value - index));
+
+    return {
+      opacity: interpolate(focus, [0, 0.4, 1], [0, 0, 1]),
+      transform: [{ scale: interpolate(focus, [0, 1], [0.92, 1]) }],
+      borderColor: interpolateColor(
+        focus,
+        [0, 1],
+        ['rgba(255,255,255,0)', TAB_ACTIVE_PILL_BORDER],
+      ),
+    };
+  });
+
   const labelStyle = useAnimatedStyle(() => {
     const focus = 1 - Math.min(1, Math.abs(progress.value - index));
 
     return {
       color: interpolateColor(focus, [0, 1], [TAB_LABEL_INACTIVE, TAB_LABEL_ACTIVE]),
-      transform: [{ scale: interpolate(focus, [0, 1], [TAB_SCALE_INACTIVE, TAB_SCALE_ACTIVE]) }],
     };
   });
 
@@ -53,12 +62,19 @@ function Tab({ id, index, progress, onPress }: TabProps) {
 
     return {
       opacity: interpolate(focus, [0, 1], [0.55, 1]),
-      transform: [{ scale: interpolate(focus, [0, 1], [TAB_SCALE_INACTIVE, TAB_SCALE_ACTIVE]) }],
     };
   });
 
   return (
     <Pressable style={styles.tab} onPress={onPress}>
+      <Animated.View style={[styles.activePill, pillStyle]}>
+        <LinearGradient
+          colors={[TAB_ACTIVE_PILL_SHINE_TOP, TAB_ACTIVE_PILL_SHINE_BOTTOM]}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+      </Animated.View>
       {id === 'home' ? (
         <Animated.View style={[styles.tabIconWrap, iconStyle]}>
           <HomeIcon />
@@ -71,48 +87,33 @@ function Tab({ id, index, progress, onPress }: TabProps) {
 
 export function BottomBar({ progress, onTabPress }: BottomBarProps) {
   const insets = useSafeAreaInsets();
-  const barWidth = useSharedValue(0);
+  const bottomInset = Math.max(insets.bottom, 8);
 
-  const onBarLayout = useCallback(
-    (e: LayoutChangeEvent) => {
-      barWidth.value = e.nativeEvent.layout.width;
+  const handleTabPress = useCallback(
+    (index: number) => {
+      onTabPress(index);
     },
-    [barWidth],
+    [onTabPress],
   );
 
-  const indicatorStyle = useAnimatedStyle(() => {
-    const slotWidth = barWidth.value / PAGE_COUNT;
-    const indicatorWidth = slotWidth - INDICATOR_INSET * 2;
-
-    return {
-      width: indicatorWidth,
-      transform: [
-        {
-          translateX: interpolate(
-            progress.value,
-            PAGE_INPUT_RANGE,
-            [
-              INDICATOR_INSET,
-              slotWidth + INDICATOR_INSET,
-              2 * slotWidth + INDICATOR_INSET,
-            ],
-          ),
-        },
-      ],
-    };
-  });
-
   return (
-    <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-      <View style={styles.barInner} onLayout={onBarLayout}>
-        <Animated.View style={[styles.indicator, indicatorStyle]} />
+    <View style={[styles.bar, { paddingBottom: bottomInset }]}>
+      <BlurView
+        intensity={Platform.OS === 'ios' ? 48 : 72}
+        tint="dark"
+        experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined}
+        style={StyleSheet.absoluteFill}
+      />
+      <View pointerEvents="none" style={styles.tintOverlay} />
+      <View pointerEvents="none" style={styles.topEdge} />
+      <View style={styles.barInner}>
         {PAGES.map((id, index) => (
           <Tab
             key={id}
             id={id}
             index={index}
             progress={progress}
-            onPress={() => onTabPress(index)}
+            onPress={() => handleTabPress(index)}
           />
         ))}
       </View>
@@ -120,32 +121,53 @@ export function BottomBar({ progress, onTabPress }: BottomBarProps) {
   );
 }
 
+export function getBottomBarPadding(bottomInset: number) {
+  return BOTTOM_BAR_CONTENT_HEIGHT + Math.max(bottomInset, 8);
+}
+
 const styles = StyleSheet.create({
   bar: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingTop: 6,
+    overflow: 'hidden',
+    zIndex: 10,
+  },
+  tintOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(10, 15, 28, 0.52)',
+  },
+  topEdge: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   barInner: {
     flexDirection: 'row',
-    position: 'relative',
-    borderRadius: 16,
-    backgroundColor: 'rgba(0,0,0,0.22)',
-    overflow: 'hidden',
-  },
-  indicator: {
-    position: 'absolute',
-    top: INDICATOR_INSET,
-    bottom: INDICATOR_INSET,
-    left: 0,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.18)',
   },
   tab: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
-    gap: 4,
+    paddingVertical: 8,
+    gap: 3,
+  },
+  activePill: {
+    position: 'absolute',
+    top: 5,
+    bottom: 5,
+    left: 10,
+    right: 10,
+    borderRadius: 999,
+    backgroundColor: TAB_ACTIVE_PILL_FILL,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: TAB_ACTIVE_PILL_BORDER,
+    overflow: 'hidden',
   },
   tabIconWrap: {
     height: 18,
@@ -153,7 +175,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tabLabel: {
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '500',
     textTransform: 'capitalize',
   },
 });
