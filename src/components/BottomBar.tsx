@@ -1,14 +1,14 @@
-import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useCallback } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
 import Animated, {
   interpolate,
   interpolateColor,
   SharedValue,
   useAnimatedStyle,
-} from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+  useDerivedValue,
+} from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   PAGES,
   TAB_ACTIVE_PILL_BORDER,
@@ -17,8 +17,8 @@ import {
   TAB_ACTIVE_PILL_SHINE_TOP,
   TAB_LABEL_ACTIVE,
   TAB_LABEL_INACTIVE,
-} from '../theme';
-import { HomeIcon } from './home/HomeIcon';
+} from "../theme";
+import { HomeIcon } from "./home/HomeIcon";
 
 export const BOTTOM_BAR_CONTENT_HEIGHT = 58;
 
@@ -35,33 +35,35 @@ type TabProps = {
 };
 
 function Tab({ id, index, progress, onPress }: TabProps) {
-  const pillStyle = useAnimatedStyle(() => {
-    const focus = 1 - Math.min(1, Math.abs(progress.value - index));
+  const focus = useDerivedValue(
+    () => 1 - Math.min(1, Math.abs(progress.value - index)),
+  );
 
+  const pillStyle = useAnimatedStyle(() => {
     return {
-      opacity: interpolate(focus, [0, 0.4, 1], [0, 0, 1]),
-      transform: [{ scale: interpolate(focus, [0, 1], [0.92, 1]) }],
+      opacity: interpolate(focus.value, [0, 0.4, 1], [0, 0, 1]),
+      transform: [{ scale: interpolate(focus.value, [0, 1], [0.92, 1]) }],
       borderColor: interpolateColor(
-        focus,
+        focus.value,
         [0, 1],
-        ['rgba(255,255,255,0)', TAB_ACTIVE_PILL_BORDER],
+        ["rgba(255,255,255,0)", TAB_ACTIVE_PILL_BORDER],
       ),
     };
   });
 
   const labelStyle = useAnimatedStyle(() => {
-    const focus = 1 - Math.min(1, Math.abs(progress.value - index));
-
     return {
-      color: interpolateColor(focus, [0, 1], [TAB_LABEL_INACTIVE, TAB_LABEL_ACTIVE]),
+      color: interpolateColor(
+        focus.value,
+        [0, 1],
+        [TAB_LABEL_INACTIVE, TAB_LABEL_ACTIVE],
+      ),
     };
   });
 
   const iconStyle = useAnimatedStyle(() => {
-    const focus = 1 - Math.min(1, Math.abs(progress.value - index));
-
     return {
-      opacity: interpolate(focus, [0, 1], [0.55, 1]),
+      opacity: interpolate(focus.value, [0, 1], [0.55, 1]),
     };
   });
 
@@ -75,7 +77,7 @@ function Tab({ id, index, progress, onPress }: TabProps) {
           style={StyleSheet.absoluteFill}
         />
       </Animated.View>
-      {id === 'home' ? (
+      {id === "home" ? (
         <Animated.View style={[styles.tabIconWrap, iconStyle]}>
           <HomeIcon />
         </Animated.View>
@@ -89,19 +91,11 @@ export function BottomBar({ progress, onTabPress }: BottomBarProps) {
   const insets = useSafeAreaInsets();
   const bottomInset = Math.max(insets.bottom, 8);
 
-  const handleTabPress = useCallback(
-    (index: number) => {
-      onTabPress(index);
-    },
-    [onTabPress],
-  );
-
   return (
     <View style={[styles.bar, { paddingBottom: bottomInset }]}>
       <BlurView
-        intensity={Platform.OS === 'ios' ? 48 : 72}
+        intensity={Platform.OS === "ios" ? 48 : 72}
         tint="dark"
-        experimentalBlurMethod={Platform.OS === 'android' ? 'dimezisBlurView' : undefined}
         style={StyleSheet.absoluteFill}
       />
       <View pointerEvents="none" style={styles.tintOverlay} />
@@ -113,7 +107,7 @@ export function BottomBar({ progress, onTabPress }: BottomBarProps) {
             id={id}
             index={index}
             progress={progress}
-            onPress={() => handleTabPress(index)}
+            onPress={() => onTabPress(index)}
           />
         ))}
       </View>
@@ -127,38 +121,38 @@ export function getBottomBarPadding(bottomInset: number) {
 
 const styles = StyleSheet.create({
   bar: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,
     paddingTop: 6,
-    overflow: 'hidden',
+    overflow: "hidden",
     zIndex: 10,
   },
   tintOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(10, 15, 28, 0.52)',
+    backgroundColor: "rgba(10, 15, 28, 0.52)",
   },
   topEdge: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     height: StyleSheet.hairlineWidth,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   barInner: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   tab: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 8,
     gap: 3,
   },
   activePill: {
-    position: 'absolute',
+    position: "absolute",
     top: 5,
     bottom: 5,
     left: 10,
@@ -167,16 +161,16 @@ const styles = StyleSheet.create({
     backgroundColor: TAB_ACTIVE_PILL_FILL,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: TAB_ACTIVE_PILL_BORDER,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   tabIconWrap: {
     height: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   tabLabel: {
     fontSize: 11,
-    fontWeight: '500',
-    textTransform: 'capitalize',
+    fontWeight: "500",
+    textTransform: "capitalize",
   },
 });

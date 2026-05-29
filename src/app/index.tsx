@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import { useCallback, useRef } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Animated, {
   useAnimatedReaction,
   useSharedValue,
@@ -41,7 +41,7 @@ export default function HomeScreen() {
   );
 
   return (
-    <Animated.View style={styles.fill}>
+    <View style={styles.fill}>
       <PageBackground progress={progress} />
       <Pager ref={pagerRef} progress={progress}>
         <HomeTabScreen />
@@ -49,7 +49,7 @@ export default function HomeScreen() {
         <PortfolioScreen />
       </Pager>
       <BottomBar progress={progress} onTabPress={handleTabPress} />
-    </Animated.View>
+    </View>
   );
 }
 
